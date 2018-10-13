@@ -11,22 +11,42 @@ verticalSeparator: "^\n\n"
 
 ### Abstract
 You're using HTTP every day and there are lots of tools available to help you out.
+<!-- .element: style="font-size: 0.75em" -->
+
 But do you understand how these tools differ and why you would choose one over the other?
+<!-- .element: style="font-size: 0.75em" -->
+
 HTTP is not all that complicated and in this talk I'll prove it by showing you how to implement
-a simple Web application using a few different HTTP clients.  We'll discuss how each of the
-tools differ so you can make informed decisions in the future.
+a simple Web application using a few different HTTP clients.
+<!-- .element: style="font-size: 0.75em" -->
+
+We'll discuss how each of the tools differ so you can make informed decisions in the future.
+<!-- .element: style="font-size: 0.75em" -->
 
 
-# Agenda
+## Agenda
 * A brief history of HTTP
+<!-- .element: style="font-size: 0.75em" -->
 * Making a request with Telnet
+<!-- .element: style="font-size: 0.75em" -->
 * JVM HTTP Clients
+<!-- .element: style="font-size: 0.75em" -->
     * java.net.URLConnection
+<!-- .element: style="font-size: 0.75em" -->
     * Apache
+<!-- .element: style="font-size: 0.75em" -->
     * OkHttp
-* Other Ok Libraries
+<!-- .element: style="font-size: 0.75em" -->
+* Some Ok Libraries
+<!-- .element: style="font-size: 0.75em" -->
+    * Okio
+<!-- .element: style="font-size: 0.75em" -->
     * Moshi
+<!-- .element: style="font-size: 0.75em" -->
     * Retrofit
+<!-- .element: style="font-size: 0.75em" -->
+* Unit Testing HTTP Interactions
+<!-- .element: style="font-size: 0.75em" -->
 
 
 ### History
@@ -79,11 +99,11 @@ tools differ so you can make informed decisions in the future.
 ## A simple GET request
     URLConnection connection = new URL("http://localhost:8080/joke")
             .openConnection();
-            
+
     connection.setRequestProperty("Accept", "application/json");
-    
+
     InputStream response = connection.getInputStream();
-    
+
     String responseBody = IOUtils.toString(response, "UTF-8");
 
 
@@ -91,18 +111,18 @@ tools differ so you can make informed decisions in the future.
     HttpURLConnection connection =
             (HttpURLConnection) new URL("http://localhost:8080/joke/1")
                     .openConnection();
-                    
+
     connection.setRequestMethod("DELETE");
 
     connection.connect();
-<!-- .element: style="font-size: 0.51em" --> 
+<!-- .element: style="font-size: 0.51em" -->
 
 
 ## A POST request
     HttpURLConnection connection =
             (HttpURLConnection) new URL("http://localhost:8080/joke")
                     .openConnection();
-                    
+
     connection.setRequestMethod("POST");  // Default
     connection.setRequestProperty("Content-Type", "application/json");
     connection.setDoOutput(true);
@@ -115,10 +135,11 @@ tools differ so you can make informed decisions in the future.
 
     return moshi.adapter(Boolean.class)
             .toJson(connection.getResponseCode() == 201);
-<!-- .element: style="font-size: 0.52em" --> 
+<!-- .element: style="font-size: 0.52em" -->
 
 
-## Apache
+# Apache
+
 
 ## A GET request
     HttpGet request = new HttpGet(BASE_URL + "/joke");
@@ -132,7 +153,7 @@ tools differ so you can make informed decisions in the future.
 
         return status;
     }
-<!-- .element: style="font-size: 0.51em" --> 
+<!-- .element: style="font-size: 0.51em" -->
 
 
 ## A DELETE request
@@ -144,7 +165,7 @@ tools differ so you can make informed decisions in the future.
         EntityUtils.consume(response.getEntity());
         return responseString;
     }
-<!-- .element: style="font-size: 0.51em" --> 
+<!-- .element: style="font-size: 0.51em" -->
 
 
 ## A POST request
@@ -159,10 +180,10 @@ tools differ so you can make informed decisions in the future.
         EntityUtils.consume(entity);
         return responseString;
     }
-<!-- .element: style="font-size: 0.51em" --> 
+<!-- .element: style="font-size: 0.51em" -->
 
 
-## Okhttp
+# Okhttp
 
 
 ## A GET request
@@ -180,7 +201,7 @@ tools differ so you can make informed decisions in the future.
             .url(BASE_URL + "/joke/" + id)
             .delete()
             .build();
-                
+
     Response response = null;
     try {
         response = httpClient.newCall(request).execute();
@@ -197,14 +218,14 @@ tools differ so you can make informed decisions in the future.
     RequestBody requestBody = RequestBody.create(
             MediaType.get(APPLICATION_JSON),
             moshi.adapter(Joke.class).toJson(joke));
-            
+
     Request request = new Request.Builder()
             .url(BASE_URL + "/joke")
             .post(requestBody)
             .build();
 
     Response response = httpClient.newCall(request).execute();
-    
+
     return moshi.adapter(Boolean.class)
             .toJson(response.isSuccessful());
 
@@ -212,13 +233,13 @@ tools differ so you can make informed decisions in the future.
 # Other Ok libraries
 
 
-## Okio
+# Okio
 A modern I/O API for Java
 
 https://github.com/square/okio
 
 
-### Okio is
+## Okio is
 
 * A complement to javio.io
 * Efficient and easy to use
@@ -230,7 +251,7 @@ https://github.com/square/okio
     Sink fileSink = Okio.sink(file);
     Sink gzipSink = new GzipSink(fileSink);
     BufferedSink = Okio.buffer(gzipSink);
-    
+
     bufferedSink.writeUtf8("lots of text");
     bufferedSink.close();
 
@@ -238,13 +259,13 @@ https://github.com/square/okio
 ![Okio Composition Diagram](res/okio-composition.png)
 
 
-## Moshi
+# Moshi
 A modern JSON library
 
 https://github.com/square/moshi
 
 
-### Moshi is...
+## Moshi is...
 * Opinionated
 * Streamlined
 * Setup to use Okio out of the box
@@ -267,7 +288,7 @@ https://github.com/square/moshi
         }
       ]
     }
-<!-- .element: style="font-size: 0.65em" --> 
+<!-- .element: style="font-size: 0.65em" -->
 
 
 ### From Json
@@ -278,7 +299,7 @@ https://github.com/square/moshi
             = moshi.adapter(BlackjackHand.class);
 
     BlackjackHand blackjackHand = jsonAdapter.fromJson(json);
-<!-- .element: style="font-size: 0.64em" --> 
+<!-- .element: style="font-size: 0.64em" -->
 
 
 ### To Json
@@ -316,14 +337,14 @@ https://github.com/square/moshi
         }
       }
     }
-<!-- .element: style="font-size: 0.51em" --> 
+<!-- .element: style="font-size: 0.51em" -->
 
 
 ### Json Arrays
     String cardsJsonResponse = ...;
-    
+
     Type type = Types.newParameterizedType(List.class, Card.class);
-    
+
     JsonAdapter<List<Card>> adapter = moshi.adapter(type);
     List<Card> cards = adapter.fromJson(cardsJsonResponse);
 
@@ -444,7 +465,7 @@ http://www.mock-server.com
 
         mockServerClient.verify(request, once());
     }
-<!-- .element: style="font-size: 0.47em" --> 
+<!-- .element: style="font-size: 0.47em" -->
 
 
 ## Apache Local Test Server
@@ -464,7 +485,7 @@ MockServer is far easier and more intuitive
 
 ### Test Setup
     private static MockWebServer mockWebServer = new MockWebServer();
-    
+
     @BeforeClass
     public static void setUp() throws IOException {
         mockWebServer.start();
@@ -497,10 +518,38 @@ MockServer is far easier and more intuitive
         assertThat(actualRequest.getBody().readString(UTF_8),
                 is(jokeJson));
     }
-<!-- .element: style="font-size: 0.51em" --> 
+<!-- .element: style="font-size: 0.51em" -->
 
 
 # Conclusion
+* A brief history of HTTP
+<!-- .element: style="font-size: 0.75em" -->
+* Making a request with Telnet
+<!-- .element: style="font-size: 0.75em" -->
+* JVM HTTP Clients
+<!-- .element: style="font-size: 0.75em" -->
+    * java.net.URLConnection
+<!-- .element: style="font-size: 0.75em" -->
+    * Apache
+<!-- .element: style="font-size: 0.75em" -->
+    * OkHttp
+<!-- .element: style="font-size: 0.75em" -->
+* Some Ok Libraries
+<!-- .element: style="font-size: 0.75em" -->
+    * Okio
+<!-- .element: style="font-size: 0.75em" -->
+    * Moshi
+<!-- .element: style="font-size: 0.75em" -->
+    * Retrofit
+<!-- .element: style="font-size: 0.75em" -->
+* Unit Testing HTTP Interactions
+<!-- .element: style="font-size: 0.75em" -->
+
+
+# Questions?
+Slides and code available on Github
+
+https://git.io/quincy-2018
 
 
 # Bibliography
