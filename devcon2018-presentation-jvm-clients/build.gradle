@@ -1,0 +1,36 @@
+plugins {
+    id 'java'
+    id 'kotlin-platform-jvm' version '1.2.71'
+}
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    jcenter()
+    maven { url 'https://jitpack.io' }
+    maven {url "https://kotlin.bintray.com/ktor"}
+}
+
+dependencies {
+    compile project(':devcon2018-presentation-jvm-lib')
+
+    compile "com.github.kwebio:core:${rootProject.ext.kwebioVersion}"
+    compile "com.squareup.moshi:moshi-adapters:${rootProject.ext.moshiAdaptersVersion}"
+    compile "com.squareup.moshi:moshi:${rootProject.ext.moshiVersion}"
+    compile "com.squareup.okhttp3:okhttp:${rootProject.ext.okhttpVersion}"
+    compile "com.squareup.okio:okio:${rootProject.ext.okioVersion}"
+    compile "com.squareup.retrofit2:retrofit:${rootProject.ext.retrofitVersion}"
+    compile "com.squareup.retrofit2:converter-moshi:${rootProject.ext.converterMoshiVersion}"
+    compile "commons-io:commons-io:${rootProject.ext.commonsIoVersion}"
+    compile "io.javalin:javalin:${rootProject.ext.javalinVersion}"
+    compile "org.apache.httpcomponents:fluent-hc:${rootProject.ext.apacheHttpComponentsVersion}"
+    compile "org.apache.httpcomponents:httpclient:${rootProject.ext.apacheHttpComponentsVersion}"
+    compile "org.slf4j:slf4j-api:${rootProject.ext.slf4jVersion}"
+    compile "org.slf4j:slf4j-simple:${rootProject.ext.slf4jVersion}"
+
+    testCompile "junit:junit:${rootProject.ext.junitVersion}"
+    testCompile "org.mockito:mockito-core:${rootProject.ext.mockitoVersion}"
+    testCompile "org.mock-server:mockserver-netty:${rootProject.ext.mockServerVersion}"
+    testCompile "com.squareup.okhttp3:mockwebserver:${rootProject.ext.okhttpVersion}"
+}

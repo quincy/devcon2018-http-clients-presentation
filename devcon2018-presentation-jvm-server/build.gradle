@@ -1,0 +1,33 @@
+plugins {
+    id 'org.jetbrains.kotlin.jvm' version '1.2.71'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile project(":devcon2018-presentation-jvm-lib")
+
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+
+    compile "com.soywiz:klock:${rootProject.ext.klockVersion}"
+    compile "com.squareup.moshi:moshi-adapters:${rootProject.ext.moshiAdaptersVersion}"
+    compile "com.squareup.moshi:moshi-kotlin:${rootProject.ext.moshiKotlinVersion}"
+    compile "com.squareup.moshi:moshi:${rootProject.ext.moshiVersion}"
+    compile "io.javalin:javalin:${rootProject.ext.javalinVersion}"
+    compile "org.slf4j:slf4j-api:${rootProject.ext.slf4jVersion}"
+    compile "org.slf4j:slf4j-simple:${rootProject.ext.slf4jVersion}"
+    
+    testCompile "junit:junit:${rootProject.ext.junitVersion}"
+    testCompile "org.jetbrains.kotlin:kotlin-test"
+    testCompile "org.jetbrains.kotlin:kotlin-test-junit"
+}
+
+compileKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+compileTestKotlin {
+    kotlinOptions.jvmTarget = "1.8"
+}
+sourceCompatibility = "1.8"

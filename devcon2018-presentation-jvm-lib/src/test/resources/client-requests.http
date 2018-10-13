@@ -1,0 +1,16 @@
+GET http://{{host}}/urlConnection/status
+Accept: application/json; charset=UTF-8
+
+###
+
+GET http://{{host}}/urlConnection/joke
+Accept: application/json; charset=UTF-8
+
+###
+
+POST http://{{host}}/urlConnection/joke
+Content-Type: text/plain; charset=UTF-8
+
+What's blue and smells like red paint?\n\nBlue paint!
+
+###

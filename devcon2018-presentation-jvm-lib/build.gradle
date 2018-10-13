@@ -1,0 +1,25 @@
+plugins {
+    id 'java'
+    id 'kotlin-platform-jvm' version '1.2.71'
+}
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    expectedBy project(':devcon2018-presentation-common')
+
+    compile "com.soywiz:klock:${rootProject.ext.klockVersion}"
+    compile "com.squareup.moshi:moshi-adapters:${rootProject.ext.moshiAdaptersVersion}"
+    compile "com.squareup.moshi:moshi:${rootProject.ext.moshiVersion}"
+    compile "com.squareup.okio:okio:${rootProject.ext.okioVersion}"
+    compile "commons-io:commons-io:${rootProject.ext.commonsIoVersion}"
+    compile "io.javalin:javalin:${rootProject.ext.javalinVersion}"
+    compile "org.slf4j:slf4j-api:${rootProject.ext.slf4jVersion}"
+    compile "org.slf4j:slf4j-simple:${rootProject.ext.slf4jVersion}"
+
+    testCompile "junit:junit:${rootProject.ext.junitVersion}"
+}

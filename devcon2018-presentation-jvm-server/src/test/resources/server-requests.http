@@ -1,0 +1,26 @@
+GET http://{{host}}/status
+Accept: application/json
+
+###
+
+GET http://{{host}}/joke
+Accept: application/json
+
+###
+
+POST http://{{host}}/joke
+Content-Type: application/json; charset=UTF-8
+
+{
+  "joke": "What's blue and smells like red paint?\n\nBlue paint!"
+}
+
+###
+
+DELETE http://{{host}}/joke/4
+
+###
+
+GET http://iscaliforniaonfire.com
+
+###

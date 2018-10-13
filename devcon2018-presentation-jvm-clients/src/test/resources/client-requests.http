@@ -1,0 +1,31 @@
+GET http://{{host}}/urlConnection/joke
+Accept: application/json; charset=UTF-8
+
+###
+
+POST http://{{host}}/urlConnection/joke
+Content-Type: text/plain; charset=UTF-8
+
+What's blue and smells like red paint?\n\nBlue paint!
+
+###
+
+DELETE http://{{host}}/urlConnection/joke/4
+
+###
+
+GET http://{{host}}/retrofit/joke
+Accept: application/json; charset=UTF-8
+
+###
+
+POST http://{{host}}/retrofit/joke
+Content-Type: text/plain; charset=UTF-8
+
+What's blue and smells like red paint?\n\nBlue paint!
+
+###
+
+DELETE http://{{host}}/retrofit/joke/4
+
+###

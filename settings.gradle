@@ -1,0 +1,19 @@
+pluginManagement {
+    resolutionStrategy {
+        eachPlugin {
+            if (requested.id.id == "kotlin-platform-common") {
+                useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${requested.version}")
+            }
+
+            if (requested.id.id == "kotlin-platform-jvm") {
+                useModule("org.jetbrains.kotlin:kotlin-gradle-plugin:${requested.version}")
+            }
+        }
+    }
+}
+rootProject.name = 'devcon2018-presentation'
+
+include ':devcon2018-presentation-common'
+include ':devcon2018-presentation-jvm-lib'
+include ':devcon2018-presentation-jvm-server'
+include ':devcon2018-presentation-jvm-clients'

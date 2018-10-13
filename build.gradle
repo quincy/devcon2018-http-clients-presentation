@@ -1,0 +1,23 @@
+ext {
+    // dependencies
+    apacheHttpComponentsVersion = '4.5.6'
+    commonsIoVersion = '2.6'
+    converterMoshiVersion = '2.1.0'
+    javalinVersion = '2.1.0'
+    jerseyVersion = '2.19'
+    jettyVersion = '9.4.12.v20180830'
+    klockVersion = '0.2.0'
+    kwebioVersion = '0.3.4'
+    mockitoVersion = '2.23.0'
+    mockServerVersion = '5.3.0'
+    moshiAdaptersVersion = '1.6.0'
+    moshiKotlinVersion = '1.6.0'
+    moshiVersion = '1.6.0'
+    okhttpVersion = '3.11.0'
+    okioVersion = '2.1.0'
+    retrofitVersion = '2.4.0'
+    slf4jVersion = '1.7.25'
+
+    // test dependencies
+    junitVersion = '4.12'
+}

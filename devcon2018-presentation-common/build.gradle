@@ -1,0 +1,15 @@
+plugins {
+    id 'kotlin-platform-common' version '1.2.71'
+}
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile "org.jetbrains.kotlin:kotlin-stdlib-common"
+
+    compile "com.soywiz:klock-common:${rootProject.ext.klockVersion}"
+
+    testCompile "org.jetbrains.kotlin:kotlin-test-annotations-common"
+    testCompile "org.jetbrains.kotlin:kotlin-test-common"
+}
