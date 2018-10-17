@@ -58,7 +58,7 @@ public class ClientMain {
     }
 
     private static void addRoutes(Javalin app, String basePath, Client client) {
-        app.get(basePath + "/joke", ctx -> ctx.json(client.fetchJoke()));
+        app.get(basePath + "/joke", ctx -> ctx.result(client.fetchJoke().getJoke()));
         app.post(basePath + "/joke", ctx -> ctx.json(client.addJoke(new Joke(ctx.body()))));
         app.delete(basePath + "/joke/:id", ctx -> ctx.json(client.deleteJoke(Integer.parseInt(ctx.pathParam("id")))));
     }

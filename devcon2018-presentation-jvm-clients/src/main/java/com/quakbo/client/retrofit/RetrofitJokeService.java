@@ -12,7 +12,6 @@ import retrofit2.http.Path;
 
 public interface RetrofitJokeService {
     @GET("/joke")
-    @Headers("Accept: application/json")
     Call<Joke> fetchJoke();
 
     @DELETE("/joke/{id}")

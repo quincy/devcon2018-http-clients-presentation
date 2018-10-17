@@ -38,7 +38,12 @@ public class ApacheClientResource implements Client {
 
         HttpGet httpGet = new HttpGet(BASE_URL + "/joke");
 
-        return moshi.adapter(Joke.class).fromJson(Okio.buffer(Okio.source(doGET(httpGet))));
+        try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
+            HttpEntity entity = response.getEntity();
+            InputStream content = entity.getContent();
+            EntityUtils.consume(entity);
+            return moshi.adapter(Joke.class).fromJson(Okio.buffer(Okio.source(content)));
+        }
     }
 
     @Override
@@ -70,15 +75,6 @@ public class ApacheClientResource implements Client {
             return saveResult;
         } catch (IOException e) {
             return new SaveResult(-1, e.getMessage());
-        }
-    }
-
-    private InputStream doGET(HttpGet httpGet) throws IOException {
-        try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
-            HttpEntity entity = response.getEntity();
-            InputStream content = entity.getContent();
-            EntityUtils.consume(entity);
-            return content;
         }
     }
 }

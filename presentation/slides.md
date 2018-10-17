@@ -72,6 +72,62 @@ We'll discuss how each of the tools differ so you can make informed decisions in
 * PATCH
 
 
+# GET
+    GET /joke
+
+Please send me a joke
+
+
+# HEAD
+    HEAD /joke
+
+Send me a joke, but just send the headers
+
+
+# POST
+    POST /joke
+
+    I � Unicode!
+
+I'm sending you a joke...
+
+
+# PUT
+    PUT /joke/1
+    
+    Old MacDonald had a char*, s-t-d-i-o!
+
+I want you to replace joke #1 with the one I'm sending you...
+
+
+# DELETE
+    DELETE /joke/1
+
+Please remove joke #1 and let's never speak of it again
+
+
+# CONNECT
+    CONNECT /joke
+
+I want a joke, but can we please encrypt?
+
+
+# TRACE
+    TRACE /joke
+
+Repeat this back to me so I can make sure you're there
+
+
+# PATCH
+    PATCH /joke/2
+    
+    {
+      "punchline": "In Soviet Russia, computer programs you!"
+    }
+
+I'd like to change just part of this joke...
+
+
 # Ready to make some requests?
 
 
@@ -82,14 +138,15 @@ We'll discuss how each of the tools differ so you can make informed decisions in
     Escape character is '^]'.
     GET /joke HTTP/1.1
     Host: localhost
-    Accept: application/json
 
 
 # cURL
-    $ curl -H 'Accept: application/json' http://localhost:8080/joke
+    $ curl http://localhost:8080/joke
 
 
 # JVM HTTP Clients
+
+![Architecture of the example](res/architecture.png)
 
 
 ## java.net.URLConnection
@@ -142,16 +199,14 @@ We'll discuss how each of the tools differ so you can make informed decisions in
 
 
 ## A GET request
-    HttpGet request = new HttpGet(BASE_URL + "/joke");
+    HttpGet httpGet = new HttpGet(BASE_URL + "/joke");
 
-    try (CloseableHttpResponse response = httpClient.execute(request)) {
+    try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
         HttpEntity entity = response.getEntity();
         InputStream content = entity.getContent();
-
-        String status = IOUtils.toString(content, CHARSET);
         EntityUtils.consume(entity);
-
-        return status;
+        return moshi.adapter(Joke.class)
+                .fromJson(Okio.buffer(Okio.source(content)));
     }
 <!-- .element: style="font-size: 0.51em" -->
 
@@ -191,7 +246,8 @@ We'll discuss how each of the tools differ so you can make informed decisions in
             .url(BASE_URL + "/joke")
             .build();
 
-    Response response = httpClient.newCall(request).execute();
+    Call call = httpClient.newCall(request);
+    Response response = call.execute();
 
     return Objects.requireNonNull(response.body()).string();
 
@@ -241,7 +297,7 @@ https://github.com/square/okio
 
 ## Okio is
 
-* A complement to javio.io
+* A complement to java.io
 * Efficient and easy to use
 * Composable
 
@@ -250,7 +306,7 @@ https://github.com/square/okio
     File file = new File("output-file");
     Sink fileSink = Okio.sink(file);
     Sink gzipSink = new GzipSink(fileSink);
-    BufferedSink = Okio.buffer(gzipSink);
+    BufferedSink bufferedSink = Okio.buffer(gzipSink);
 
     bufferedSink.writeUtf8("lots of text");
     bufferedSink.close();
@@ -349,7 +405,7 @@ https://github.com/square/moshi
     List<Card> cards = adapter.fromJson(cardsJsonResponse);
 
 
-## Why use Moshi?
+## Is it right for you?
 * Based heavily on Gson
 * Has fewer built-in type adapters (portability)
 * Less configurable
@@ -370,7 +426,6 @@ Turn the HTTP APIs you interact with into Java interfaces
 ### Example
     public interface RetrofitJokeService {
         @GET("/joke")
-        @Headers("Accept: application/json")
         Call<Joke> fetchJoke();
 
         @DELETE("/joke/{id}")

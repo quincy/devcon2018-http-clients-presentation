@@ -1,10 +1,4 @@
-GET http://{{host}}/status
-Accept: application/json
-
-###
-
 GET http://{{host}}/joke
-Accept: application/json
 
 ###
 

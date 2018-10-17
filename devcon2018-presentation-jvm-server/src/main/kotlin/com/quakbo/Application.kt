@@ -26,7 +26,7 @@ fun main(args: Array<String>) {
 
     app.routes {
         get("/joke") { ctx ->
-            ctx.result(moshi.adapter(Joke::class.java).toJson(jokeService.get()))
+            ctx.result(jokeService.get().joke)
         }
 
         post("/joke") { ctx ->
@@ -35,7 +35,9 @@ fun main(args: Array<String>) {
                 ctx.status(HttpStatus.BAD_REQUEST_400).result("Malformed JSON = ${ctx.body()}")
             } else {
                 val id = jokeService.save(joke)
-                ctx.status(HttpStatus.CREATED_201).result(moshi.adapter(SaveResult::class.javaObjectType).toJson(SaveResult("Success", id)))
+                ctx.status(HttpStatus.CREATED_201)
+                        .header("Content-Type", "application/json")
+                        .result(moshi.adapter(SaveResult::class.javaObjectType).toJson(SaveResult("Success", id)))
             }
         }
 

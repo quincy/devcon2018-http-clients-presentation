@@ -7,6 +7,7 @@ import com.quakbo.joke.Joke;
 import com.squareup.moshi.Moshi;
 import java.io.IOException;
 import java.util.Objects;
+import okhttp3.Call;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -35,8 +36,10 @@ public class OkhttpClientResource implements Client {
         Request request = new Request.Builder()
                 .url(host + "/joke")
                 .build();
-        Response response = httpClient.newCall(request).execute();
-        return moshi.adapter(Joke.class).fromJson(Objects.requireNonNull(response.body()).source());
+        Call call = httpClient.newCall(request);
+        try (Response response = call.execute()) {
+            return moshi.adapter(Joke.class).fromJson(Objects.requireNonNull(response.body()).source());
+        }
     }
 
     @Override
@@ -47,16 +50,13 @@ public class OkhttpClientResource implements Client {
                 .delete()
                 .build();
 
-        Response response = null;
-        try {
-            response = httpClient.newCall(request).execute();
-            return new DeleteResult(id, "Success");
-        } catch (IOException e) {
-            return new DeleteResult(id, e.getMessage());
-        } finally {
-            if (response != null && response.body() != null) {
-                response.body().close();
+        try (Response response = httpClient.newCall(request).execute()) {
+            if (response.isSuccessful()) {
+                return new DeleteResult(id, "Success");
             }
+            throw new IllegalStateException();
+        } catch (IllegalStateException | IOException e) {
+            return new DeleteResult(id, e.getMessage());
         }
     }
 
@@ -69,16 +69,10 @@ public class OkhttpClientResource implements Client {
                 .post(requestBody)
                 .build();
 
-        Response response = null;
-        try {
-            response = httpClient.newCall(request).execute();
+        try (Response response = httpClient.newCall(request).execute()) {
             return moshi.adapter(SaveResult.class).fromJson(Objects.requireNonNull(response.body()).source());
         } catch (IOException e) {
             return new SaveResult(-1, e.getMessage());
-        } finally {
-            if (response != null && response.body() != null) {
-                response.body().close();
-            }
         }
     }
 }

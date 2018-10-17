@@ -30,7 +30,9 @@ public class URLClientResource implements com.quakbo.client.Client {
     @Override
     public Joke fetchJoke() throws IOException {
         log.info("Received GET /joke");
-        InputStream response = doGET(host + "/joke");
+
+        URLConnection connection = new URL(host + "/joke").openConnection();
+        InputStream response = connection.getInputStream();
         return moshi.adapter(Joke.class).fromJson(Okio.buffer(Okio.source(response)));
     }
 
@@ -61,7 +63,7 @@ public class URLClientResource implements com.quakbo.client.Client {
         log.info("Received DELETE /joke/{}", id);
 
         try {
-            HttpURLConnection connection = (HttpURLConnection) new URL(host + "/joke").openConnection();
+            HttpURLConnection connection = (HttpURLConnection) new URL(host + "/joke/" + id).openConnection();
             connection.setRequestMethod("DELETE");
             connection.setDoOutput(true);
             connection.connect();
@@ -70,12 +72,5 @@ public class URLClientResource implements com.quakbo.client.Client {
         } catch (IOException e) {
             return new DeleteResult(-1, e.getMessage());
         }
-    }
-
-    private InputStream doGET(String url) throws IOException {
-        URLConnection connection = new URL(url).openConnection();
-        connection.setRequestProperty("Accept", APPLICATION_JSON);
-
-        return connection.getInputStream();
     }
 }

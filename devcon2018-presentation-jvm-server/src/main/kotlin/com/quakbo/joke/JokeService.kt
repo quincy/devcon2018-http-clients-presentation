@@ -39,5 +39,16 @@ private val jokes = mutableListOf(
         Joke("""What do you call 8 hobbits?
             |
             |A hobbyte!""".trimMargin()),
-        Joke("The two hardest problems in computer science are cache invalidation, naming things and off by one errors.")
+        Joke("The two hardest problems in computer science are cache invalidation, naming things, and off by one errors."),
+        Joke(".titanic { float:none;}"),
+        Joke("""How many programmers does it take to change a light bulb?
+            |
+            |None, that's a hardware problem.""".trimMargin()),
+        Joke("""Knock knock.
+            |
+            |Race condition.
+            |
+            |Who's there?""".trimMargin()),
+        Joke("Your mama's so FAT she can't save files bigger than 4GB."),
+        Joke("""Some people see a problem and think "I know, I'll use Java!". Now they have a ProblemFactory.""")
 )
