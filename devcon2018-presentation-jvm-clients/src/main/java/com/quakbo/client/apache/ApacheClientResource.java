@@ -7,6 +7,7 @@ import com.quakbo.joke.Joke;
 import com.squareup.moshi.Moshi;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 import okio.Okio;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -20,7 +21,7 @@ import org.slf4j.Logger;
 
 public class ApacheClientResource implements Client {
     private static final String BASE_URL = "http://localhost:8080";
-    private static final String CHARSET = "UTF-8";
+    private static final Charset CHARSET = Charset.forName("UTF-8");
 
     private final Logger log;
     private final Moshi moshi;
@@ -41,8 +42,9 @@ public class ApacheClientResource implements Client {
         try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
             HttpEntity entity = response.getEntity();
             InputStream content = entity.getContent();
+            Joke joke = new Joke(Okio.buffer(Okio.source(content)).readString(CHARSET));
             EntityUtils.consume(entity);
-            return moshi.adapter(Joke.class).fromJson(Okio.buffer(Okio.source(content)));
+            return joke;
         }
     }
 
@@ -55,8 +57,14 @@ public class ApacheClientResource implements Client {
         try (CloseableHttpResponse response = httpClient.execute(httpDelete)) {
             HttpEntity entity = response.getEntity();
             EntityUtils.consume(entity);
-            return new DeleteResult(id, "Success");
-        } catch (IOException e) {
+
+            int status = response.getStatusLine().getStatusCode();
+            if (status == 200) {
+                return new DeleteResult(id, "Success");
+            }
+
+            throw new IllegalStateException("Request failed with status " + status);
+        } catch (IllegalStateException | IOException e) {
             return new DeleteResult(id, e.getMessage());
         }
     }
@@ -71,6 +79,7 @@ public class ApacheClientResource implements Client {
         try (CloseableHttpResponse response = httpClient.execute(httpPost)) {
             HttpEntity entity = response.getEntity();
             SaveResult saveResult = moshi.adapter(SaveResult.class).fromJson(Okio.buffer(Okio.source(entity.getContent())));
+
             EntityUtils.consume(entity);
             return saveResult;
         } catch (IOException e) {

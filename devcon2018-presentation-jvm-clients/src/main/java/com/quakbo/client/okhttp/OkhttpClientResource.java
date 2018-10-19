@@ -38,7 +38,7 @@ public class OkhttpClientResource implements Client {
                 .build();
         Call call = httpClient.newCall(request);
         try (Response response = call.execute()) {
-            return moshi.adapter(Joke.class).fromJson(Objects.requireNonNull(response.body()).source());
+            return new Joke(Objects.requireNonNull(response.body()).string());
         }
     }
 
@@ -70,7 +70,8 @@ public class OkhttpClientResource implements Client {
                 .build();
 
         try (Response response = httpClient.newCall(request).execute()) {
-            return moshi.adapter(SaveResult.class).fromJson(Objects.requireNonNull(response.body()).source());
+            return moshi.adapter(SaveResult.class)
+                    .fromJson(Objects.requireNonNull(response.body()).source());
         } catch (IOException e) {
             return new SaveResult(-1, e.getMessage());
         }

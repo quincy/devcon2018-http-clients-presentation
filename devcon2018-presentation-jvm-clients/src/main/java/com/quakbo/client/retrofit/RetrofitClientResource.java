@@ -5,6 +5,7 @@ import com.quakbo.client.DeleteResult;
 import com.quakbo.client.SaveResult;
 import com.quakbo.joke.Joke;
 import java.io.IOException;
+import java.util.Objects;
 import org.slf4j.Logger;
 import retrofit2.Response;
 
@@ -20,8 +21,8 @@ public class RetrofitClientResource implements Client {
     @Override
     public Joke fetchJoke() throws IOException {
         log.info("Received GET /joke");
-        Response<Joke> response = jokeService.fetchJoke().execute();
-        return response.body();
+        Response<String> response = jokeService.fetchJoke().execute();
+        return new Joke(Objects.requireNonNull(response.body()));
     }
 
     @Override

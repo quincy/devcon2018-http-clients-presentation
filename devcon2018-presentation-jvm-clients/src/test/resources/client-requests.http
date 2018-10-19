@@ -10,7 +10,41 @@ What's blue and smells like red paint?\n\nBlue paint!
 
 ###
 
-DELETE http://{{host}}/urlConnection/joke/4
+DELETE http://{{host}}/urlConnection/joke/1
+Accept: application/json
+
+###
+
+GET http://{{host}}/apache/joke
+
+###
+
+POST http://{{host}}/apache/joke
+Accept: application/json
+Content-Type: text/plain; charset=UTF-8
+
+What's blue and smells like red paint?\n\nBlue paint!
+
+###
+
+DELETE http://{{host}}/apache/joke/1
+Accept: application/json
+
+###
+
+GET http://{{host}}/okhttp/joke
+
+###
+
+POST http://{{host}}/okhttp/joke
+Accept: application/json
+Content-Type: text/plain; charset=UTF-8
+
+What's blue and smells like red paint?\n\nBlue paint!
+
+###
+
+DELETE http://{{host}}/okhttp/joke/1
 Accept: application/json
 
 ###

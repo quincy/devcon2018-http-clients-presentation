@@ -157,21 +157,29 @@ I'd like to change just part of this joke...
     URLConnection connection = new URL("http://localhost:8080/joke")
             .openConnection();
 
-    connection.setRequestProperty("Accept", "application/json");
-
     InputStream response = connection.getInputStream();
 
     String responseBody = IOUtils.toString(response, "UTF-8");
 
 
 ## A DELETE request
-    HttpURLConnection connection =
-            (HttpURLConnection) new URL("http://localhost:8080/joke/1")
-                    .openConnection();
+    try {
+        HttpURLConnection connection = 
+                (HttpURLConnection)
+                        new URL(host + "/joke/" + id).openConnection();
+        connection.setRequestMethod("DELETE");
+        connection.connect();
 
-    connection.setRequestMethod("DELETE");
+        int status = connection.getResponseCode();
+        if (status == 200) {
+            return new DeleteResult(id, "Success");
+        }
 
-    connection.connect();
+        throw new IllegalStateException(
+                "Delete request failed with status + " + status);
+    } catch (IllegalStateException | IOException e) {
+        return new DeleteResult(-1, e.getMessage());
+    }
 <!-- .element: style="font-size: 0.51em" -->
 
 
@@ -190,8 +198,9 @@ I'd like to change just part of this joke...
         output.write(json.getBytes("UTF-8"));
     }
 
-    return moshi.adapter(Boolean.class)
-            .toJson(connection.getResponseCode() == 201);
+    return moshi.adapter(SaveResult.class)
+            .fromJson(Okio.buffer(
+                    Okio.source(connection.getInputStream())));
 <!-- .element: style="font-size: 0.52em" -->
 
 
@@ -199,41 +208,55 @@ I'd like to change just part of this joke...
 
 
 ## A GET request
-    HttpGet httpGet = new HttpGet(BASE_URL + "/joke");
+    HttpGet httpGet = new HttpGet("http://localhost:8080/joke");
 
     try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
         HttpEntity entity = response.getEntity();
         InputStream content = entity.getContent();
+        Joke joke = new Joke(Okio.buffer(
+                Okio.source(content)).readString(CHARSET));
+                
         EntityUtils.consume(entity);
-        return moshi.adapter(Joke.class)
-                .fromJson(Okio.buffer(Okio.source(content)));
+        return joke;
     }
 <!-- .element: style="font-size: 0.51em" -->
 
 
 ## A DELETE request
-    HttpDelete request = new HttpDelete(BASE_URL + "/joke/" + id);
+    HttpDelete httpDelete =
+            new HttpDelete("http://localhost:8080/joke/" + id);
 
-    try (CloseableHttpResponse response = httpClient.execute(request)) {
-        String responseString = moshi.adapter(Boolean.class)
-                .toJson(response.getStatusLine().getStatusCode() == 201);
-        EntityUtils.consume(response.getEntity());
-        return responseString;
+    try (CloseableHttpResponse response = httpClient.execute(httpDelete)) {
+        HttpEntity entity = response.getEntity();
+        EntityUtils.consume(entity);
+
+        int status = response.getStatusLine().getStatusCode();
+        if (status == 200) {
+            return new DeleteResult(id, "Success");
+        }
+
+        throw new IllegalStateException(
+                "Request failed with status " + status);
+    } catch (IllegalStateException | IOException e) {
+        return new DeleteResult(id, e.getMessage());
     }
 <!-- .element: style="font-size: 0.51em" -->
 
 
 ## A POST request
-    HttpPost httpPost = new HttpPost(BASE_URL + "/joke");
+    HttpPost httpPost = new HttpPost("http://localhost:8080/joke/");
     httpPost.setEntity(new StringEntity(
             moshi.adapter(Joke.class).toJson(joke), CHARSET));
 
     try (CloseableHttpResponse response = httpClient.execute(httpPost)) {
-        String responseString = moshi.adapter(Boolean.class)
-                .toJson(response.getStatusLine().getStatusCode() == 201);
         HttpEntity entity = response.getEntity();
+        SaveResult saveResult = moshi.adapter(SaveResult.class)
+                .fromJson(Okio.buffer(Okio.source(entity.getContent())));
+        
         EntityUtils.consume(entity);
-        return responseString;
+        return saveResult;
+    } catch (IOException e) {
+        return new SaveResult(-1, e.getMessage());
     }
 <!-- .element: style="font-size: 0.51em" -->
 
@@ -243,7 +266,7 @@ I'd like to change just part of this joke...
 
 ## A GET request
     Request request = new Request.Builder()
-            .url(BASE_URL + "/joke")
+            .url("http://localhost:8080/joke")
             .build();
 
     Call call = httpClient.newCall(request);
@@ -254,19 +277,17 @@ I'd like to change just part of this joke...
 
 ## A DELETE request
     Request request = new Request.Builder()
-            .url(BASE_URL + "/joke/" + id)
+            .url("http://localhost:8080/joke/" + id)
             .delete()
             .build();
-
-    Response response = null;
-    try {
-        response = httpClient.newCall(request).execute();
-        return moshi.adapter(Boolean.class)
-                .toJson(response.isSuccessful());
-    } finally {
-        if (response != null && response.body() != null) {
-            response.body().close();
+            
+    try (Response response = httpClient.newCall(request).execute()) {
+        if (response.isSuccessful()) {
+            return new DeleteResult(id, "Success");
         }
+        throw new IllegalStateException();
+    } catch (IllegalStateException | IOException e) {
+        return new DeleteResult(id, e.getMessage());
     }
 
 
@@ -276,14 +297,17 @@ I'd like to change just part of this joke...
             moshi.adapter(Joke.class).toJson(joke));
 
     Request request = new Request.Builder()
-            .url(BASE_URL + "/joke")
+            .url("http://localhost:8080/joke")
             .post(requestBody)
             .build();
 
-    Response response = httpClient.newCall(request).execute();
-
-    return moshi.adapter(Boolean.class)
-            .toJson(response.isSuccessful());
+    try (Response response = httpClient.newCall(request).execute()) {
+        return moshi.adapter(SaveResult.class)
+                .fromJson(Objects.requireNonNull(response.body())
+                        .source());
+    } catch (IOException e) {
+        return new SaveResult(-1, e.getMessage());
+    }
 
 
 # Other Ok libraries
@@ -372,6 +396,15 @@ https://github.com/square/moshi
     String json = jsonAdapter.toJson(blackjackHand);
 
 
+### Json Arrays
+    String cardsJsonResponse = ...;
+
+    Type type = Types.newParameterizedType(List.class, Card.class);
+
+    JsonAdapter<List<Card>> adapter = moshi.adapter(type);
+    List<Card> cards = adapter.fromJson(cardsJsonResponse);
+
+
 ### A JSON Adapter
     class CardAdapter {
       @ToJson String toJson(Card card) {
@@ -396,15 +429,6 @@ https://github.com/square/moshi
 <!-- .element: style="font-size: 0.51em" -->
 
 
-### Json Arrays
-    String cardsJsonResponse = ...;
-
-    Type type = Types.newParameterizedType(List.class, Card.class);
-
-    JsonAdapter<List<Card>> adapter = moshi.adapter(type);
-    List<Card> cards = adapter.fromJson(cardsJsonResponse);
-
-
 ## Is it right for you?
 * Based heavily on Gson
 * Has fewer built-in type adapters (portability)
@@ -426,7 +450,7 @@ Turn the HTTP APIs you interact with into Java interfaces
 ### Example
     public interface RetrofitJokeService {
         @GET("/joke")
-        Call<Joke> fetchJoke();
+        Call<String> fetchJoke();
 
         @DELETE("/joke/{id}")
         Call<Void> deleteJoke(@Path("id") int id);
@@ -444,8 +468,8 @@ Turn the HTTP APIs you interact with into Java interfaces
     @Override
     public Joke fetchJoke() throws IOException {
         log.info("Received GET /joke");
-        Response<Joke> response = jokeService.fetchJoke().execute();
-        return response.body();
+        Response<String> response = jokeService.fetchJoke().execute();
+        return new Joke(Objects.requireNonNull(response.body()));
     }
 
 
@@ -601,13 +625,13 @@ MockServer is far easier and more intuitive
 <!-- .element: style="font-size: 0.75em" -->
 
 
-# Questions?
-Slides and code available on Github
-
-https://git.io/quincy-2018
-
-
 # Bibliography
 * [How to Send HTTP Requests With URLConnection](https://stackoverflow.com/a/2793153/1193176)
 * [A Few Ok Libraries](https://www.youtube.com/watch?v=WvyScM_S88c)
 * [MockServer](http://www.mock-server.com)
+
+
+# Questions?
+Slides and code available on Github
+
+https://git.io/quincy-2018

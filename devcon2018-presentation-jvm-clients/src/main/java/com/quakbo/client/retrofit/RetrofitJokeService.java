@@ -12,7 +12,7 @@ import retrofit2.http.Path;
 
 public interface RetrofitJokeService {
     @GET("/joke")
-    Call<Joke> fetchJoke();
+    Call<String> fetchJoke();
 
     @DELETE("/joke/{id}")
     Call<Void> deleteJoke(@Path("id") int id);

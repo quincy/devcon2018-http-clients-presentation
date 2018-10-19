@@ -10,11 +10,12 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.Charset;
 import okio.Okio;
 import org.slf4j.Logger;
 
 public class URLClientResource implements com.quakbo.client.Client {
-    private static final String CHARSET = "UTF-8";
+    private static final Charset CHARSET = Charset.forName("UTF-8");
     private static final String APPLICATION_JSON = "application/json; charset-UTF-8";
 
     private final Logger log;
@@ -33,7 +34,7 @@ public class URLClientResource implements com.quakbo.client.Client {
 
         URLConnection connection = new URL(host + "/joke").openConnection();
         InputStream response = connection.getInputStream();
-        return moshi.adapter(Joke.class).fromJson(Okio.buffer(Okio.source(response)));
+        return new Joke(Okio.buffer(Okio.source(response)).readString(CHARSET));
     }
 
     @Override
@@ -65,11 +66,15 @@ public class URLClientResource implements com.quakbo.client.Client {
         try {
             HttpURLConnection connection = (HttpURLConnection) new URL(host + "/joke/" + id).openConnection();
             connection.setRequestMethod("DELETE");
-            connection.setDoOutput(true);
             connection.connect();
 
-            return new DeleteResult(id, "Success");
-        } catch (IOException e) {
+            int status = connection.getResponseCode();
+            if (status == 200) {
+                return new DeleteResult(id, "Success");
+            }
+
+            throw new IllegalStateException("Delete request failed with status + " + status);
+        } catch (IllegalStateException | IOException e) {
             return new DeleteResult(-1, e.getMessage());
         }
     }
