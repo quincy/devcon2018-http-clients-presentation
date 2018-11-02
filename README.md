@@ -1,6 +1,6 @@
 # HTTP Clients
 ## A survey of URLConnection, Okhttp, and more
-This is a presentation I gave at Clearwater Analytics DevCon 2018 on October 19, 2018.
+This is a presentation I gave during Boise Startup Week at Clearwater Analytics on October 19, 2018.
 
 # Viewing The Presentation
 This presentation is written in Markdown format and is intended to be presented using the [reveal-md](https://github.com/webpro/reveal-md) tool.
@@ -15,7 +15,13 @@ You can start up the reveal-md Web server and start presenting with the followin
     $ cd presentation
     $ reveal-md slides.md --css style.css
 
-Alternatively, you can also export the presentation to a PDF file like this.
+Alternatively, you can also export the presentation to a static HTML site like this:
+
+    $ cd presentation
+    $ reveal-md slides.md --css style.css --static site
+    $ firefox site/index.html
+
+...or to a PDF file like this:
 
     $ cd presentation
     $ reveal-md slides.md --css style.css --print slides.pdf
