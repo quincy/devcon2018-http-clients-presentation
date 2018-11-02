@@ -464,6 +464,16 @@ Turn the HTTP APIs you interact with into Java interfaces
     }
 
 
+### Create a Joke Service
+    Retrofit retrofit = new Retrofit.Builder()
+            .baseUrl("http://" + server + ":" + port)
+            .addConverterFactory(MoshiConverterFactory.create())
+            .build();
+
+    RetrofitJokeService jokeService
+            = retrofit.create(RetrofitJokeService.class);
+
+
 ### GET Request
     @Override
     public Joke fetchJoke() throws IOException {
